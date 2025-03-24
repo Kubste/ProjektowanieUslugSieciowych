@@ -1,0 +1,76 @@
+[
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$z93CMMNwSCbElY0W2hbCd2$zkO21o7sA87OmjovzYXXY6ZfDDAcg/5WfFHIM5COuv8=",
+        "last_login": "2025-03-24T22:43:50.687Z",
+        "is_superuser": true,
+        "username": "pus_admin",
+        "first_name": "admin",
+        "last_name": "admin",
+        "email": "admin@admin.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2025-03-24T22:43:43.682Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "database_manager.city",
+    "pk": 1,
+    "fields": {
+        "city_name": "Warsaw",
+        "latitude": "300.000000",
+        "longitude": "300.000000"
+    }
+},
+{
+    "model": "database_manager.route",
+    "pk": 1,
+    "fields": {
+        "name": "Route1",
+        "user": 1,
+        "created_at": "2025-03-24T22:48:32.263Z",
+        "starts_at": "2025-03-24",
+        "ends_at": "2025-03-27"
+    }
+},
+{
+    "model": "database_manager.routecity",
+    "pk": 1,
+    "fields": {
+        "route": 1,
+        "city": 1,
+        "position": 0
+    }
+},
+{
+    "model": "database_manager.forecastdata",
+    "pk": 1,
+    "fields": {
+        "city": 1,
+        "date": "2025-03-24",
+        "temp": 30.0,
+        "feels_like": 28.0,
+        "pressure": 1000,
+        "min_temp": 10.0,
+        "max_temp": 35.0,
+        "clouds": 10,
+        "wind_speed": 20.0,
+        "visibility": 100,
+        "description": "test",
+        "alerts": "test",
+        "main_weather": "sunny"
+    }
+},
+{
+    "model": "database_manager.recommendation",
+    "pk": 1,
+    "fields": {
+        "route": 1,
+        "recommendation": "recommendation"
+    }
+}
+]
