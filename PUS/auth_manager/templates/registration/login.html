@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Logowanie{% endblock %}
+{% block content %}
+    <h1>Logowanie</h1>
+    {% if form.errors %}
+        <p>
+            Nazwa użytkownika lub hasło są niepoprawne.
+            Spróbuj ponownie
+        </p>
+    {% else %}
+        <p>Wypełnij poniższy formularz, aby się zalogować. Jeżeli nie masz jeszcze konta, możesz je utworzyć
+        <a href="{% url "auth_manager:register" %}">tutaj</a>.</p>
+    {% endif %}
+    <div class="login-form">
+        <form action="{% url 'auth_manager:login' %}" method="post">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}" />
+            <p><input type="submit" value="Zaloguj"></p>
+        </form>
+    <p><a href="{% url "auth_manager:password_reset" %}">Zapomniałeś hasła?</a></p>
+    </div>
+{% endblock %}

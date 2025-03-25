@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock%}</title>
+    </head>
+    <body>
+        <div id="header">
+                {% if request.user.is_authenticated %}
+                    Witaj, {{ request.user.first_name }}!
+                    <form action="{% url 'auth_manager:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Wyloguj</button>
+                    </form>
+
+                {% else %}
+                    <a href="{% url "auth_manager:login" %}">Zaloguj</a>
+                {% endif %}
+        </div>
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>
