@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'auth_manager.apps.AuthManagerConfig',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'database_manager.apps.DatabaseManagerConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
