@@ -23,7 +23,8 @@ class ForecastDataSerializer(serializers.ModelSerializer):
 
 
 class RouteCitySerializer(serializers.ModelSerializer):
-    city = CitySerializer(read_only=True)
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
+    route = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = RouteCity
@@ -40,7 +41,7 @@ class RecommendationSerializer(serializers.ModelSerializer):
 
 class RouteSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-    route_cities = RouteCitySerializer(many=True, read_only=True)
+    route_cities = RouteCitySerializer(many=True)
     recommendations = RecommendationSerializer(many=True, read_only=True)
 
     class Meta:
@@ -49,3 +50,10 @@ class RouteSerializer(serializers.ModelSerializer):
             'id', 'name', 'user', 'created_at',
             'starts_at', 'ends_at', 'route_cities', 'recommendations'
         ]
+
+    def create(self, validated_data):
+        route_cities_data = validated_data.pop('route_cities', [])
+        route = Route.objects.create(**validated_data)
+        for route_city_data in route_cities_data:
+            RouteCity.objects.create(route=route, **route_city_data)
+        return route
