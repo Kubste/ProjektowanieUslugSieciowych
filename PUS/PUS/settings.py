@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'database_manager.apps.DatabaseManagerConfig',
     'api.apps.ApiConfig',
+    'weather_api.apps.WeatherApiConfig',
 ]
 
 MIDDLEWARE = [
