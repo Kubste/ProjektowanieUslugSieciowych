@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from database_manager.models import Route
-from .serializers import RouteSerializer
 from weather_api.utils import fetch_and_save_forecasts_for_route
 
 class CityViewSet(viewsets.ModelViewSet):
@@ -30,7 +28,7 @@ class RouteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    #adres endpoint: http://127.0.0.1:8000/api/route/<route id>/update_forecast/ -u "<username>:<user_password>"
+    #adres endpointu: http://127.0.0.1:8000/api/route/<route id>/update_forecast/ -u "<username>:<password>"
     @action(detail=True, methods=['post'], url_path='update_forecast')
     def update_forecasts(self, request, pk=None):
         route = self.get_object()
@@ -53,7 +51,7 @@ class ForecastDataViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return ForecastData.objects.filter(city__in=City.objects.filter(in_routes__route__user=self.request.user)).distinct()
+        return ForecastData.objects.filter(city__in=City.objects.filter(in_routes__route__user=self.request.user))
 
 
 class RecommendationViewSet(viewsets.ModelViewSet):

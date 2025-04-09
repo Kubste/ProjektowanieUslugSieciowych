@@ -24,17 +24,18 @@ def fetch_and_save_forecast(route_city):
 
     for forecast_date, forecast in forecasts.items():
         defaults = {
-            "temp": forecast["temp"]["day"],
-            "feels_like": forecast["feels_like"]["day"],
-            "pressure": forecast["pressure"],
-            "min_temp": forecast["temp"]["min"],
-            "max_temp": forecast["temp"]["max"],
-            "clouds": forecast["clouds"],
-            "wind_speed": forecast["speed"],
-            "visibility": 0,    # nie ma visibility
-            "description": forecast["weather"][0]["description"],
-            "alerts": "",
-            "main_weather": forecast["weather"][0]["main"],
+            "temp": forecast.get("temp", {}).get("day", 0),
+            "feels_like": forecast.get("feels_like", {}).get("day", 0),
+            "pressure": forecast.get("pressure", 0),
+            "humidity": forecast.get("humidity", 0),
+            "min_temp": forecast.get("temp", {}).get("min", 0),
+            "max_temp": forecast.get("temp", {}).get("max", 0),
+            "clouds": forecast.get("clouds", 0),
+            "wind_speed": forecast.get("speed", 0),
+            "rain": forecast.get("rain", 0),
+            "precipitation_probability": forecast.get("pop", 0),
+            "description": forecast.get("weather", [{}])[0].get("description", ""),
+            "main_weather": forecast.get("weather", [{}])[0].get("main", ""),
         }
         ForecastData.objects.update_or_create(
             city=city,

@@ -56,13 +56,14 @@ class ForecastData(models.Model):
     temp = models.FloatField()
     feels_like = models.FloatField()
     pressure = models.IntegerField()
+    humidity = models.IntegerField()
     min_temp = models.FloatField()
     max_temp = models.FloatField()
     clouds = models.IntegerField()
     wind_speed = models.FloatField()
-    visibility = models.IntegerField(null=True, blank=True, default=0)
+    rain = models.FloatField()
+    precipitation_probability = models.FloatField()
     description = models.TextField(null=True, blank=True)
-    alerts = models.TextField(null=True, blank=True)
     main_weather = models.CharField(max_length=64)
 
     class Meta:

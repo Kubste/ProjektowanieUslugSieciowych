@@ -1,4 +1,6 @@
+import requests
 from rest_framework import serializers
+from PUS import settings
 from database_manager.models import City, Route, RouteCity, ForecastData, Recommendation
 from django.contrib.auth import get_user_model
 
@@ -9,6 +11,28 @@ class CitySerializer(serializers.ModelSerializer):
         model = City
         fields = ['id', 'city_name', 'latitude', 'longitude']
 
+    def create(self, validated_data):
+        city_name = validated_data['city_name']
+
+        api_key = settings.OPENWEATHER_API_KEY
+        #lepiej wykorzystać Geocoding Api, ale wymagana jest tam subskrypcja i podanie karty
+        url = f"https://api.openweathermap.org/data/2.5/forecast/daily?q={city_name},&cnt=1&appid={api_key}"
+        response = requests.get(url)
+        data = response.json()
+
+        if 'city' not in data:
+            raise serializers.ValidationError("Wprowadzono niepoprawną nazwę miasta")
+
+        latitude = data["city"]["coord"]["lat"]
+        longitude = data["city"]["coord"]["lon"]
+
+        city = City.objects.create(
+            city_name=city_name,
+            latitude=latitude,
+            longitude=longitude
+        )
+        return city
+
 
 class ForecastDataSerializer(serializers.ModelSerializer):
     city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
@@ -17,8 +41,8 @@ class ForecastDataSerializer(serializers.ModelSerializer):
         model = ForecastData
         fields = [
             'id', 'city', 'date', 'temp', 'feels_like', 'pressure',
-            'min_temp', 'max_temp', 'clouds', 'wind_speed',
-            'visibility', 'description', 'alerts', 'main_weather'
+            'humidity', 'min_temp', 'max_temp', 'clouds', 'wind_speed',
+            'rain', 'precipitation_probability', 'description', 'main_weather'
         ]
 
 
