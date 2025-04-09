@@ -1,8 +1,14 @@
-from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
 from database_manager.models import City, Route, RouteCity, ForecastData, Recommendation
 from .serializers import (CitySerializer, RouteSerializer, RouteCitySerializer, ForecastDataSerializer, RecommendationSerializer)
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
+from database_manager.models import Route
+from .serializers import RouteSerializer
+from weather_api.utils import fetch_and_save_forecasts_for_route
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
@@ -23,6 +29,13 @@ class RouteViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    #adres endpoint: http://127.0.0.1:8000/api/route/<route id>/update_forecast/ -u "<username>:<user_password>"
+    @action(detail=True, methods=['post'], url_path='update_forecast')
+    def update_forecasts(self, request, pk=None):
+        route = self.get_object()
+        fetch_and_save_forecasts_for_route(route)
+        return Response({"detail": "Dane pogodowe zostały zaktualizowane."}, status=status.HTTP_200_OK)
 
 
 class RouteCityViewSet(viewsets.ModelViewSet):
