@@ -11,7 +11,7 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class ForecastDataSerializer(serializers.ModelSerializer):
-    city = CitySerializer(read_only=True)
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
 
     class Meta:
         model = ForecastData
@@ -32,7 +32,19 @@ class RouteCitySerializer(serializers.ModelSerializer):
 
 
 class RecommendationSerializer(serializers.ModelSerializer):
-    route = serializers.StringRelatedField(read_only=True)
+    route = serializers.PrimaryKeyRelatedField(queryset=Route.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            self.fields['route'].queryset = Route.objects.filter(user=request.user)
+
+    def validate_route(self, value):
+        request = self.context.get('request')
+        if request and value.user != request.user:
+            raise serializers.ValidationError()
+        return value
 
     class Meta:
         model = Recommendation

@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('auth_manager.urls', namespace='auth_manager')),
     path('api/', include('api.urls', namespace='api')),
+    path('weather_api/', include('weather_api.urls', namespace='weather_api')),
 ]
