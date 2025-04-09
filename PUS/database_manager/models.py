@@ -19,8 +19,8 @@ class Route(models.Model):
     name = models.CharField(max_length=128)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="routes")
     created_at = models.DateTimeField(auto_now_add=True)
-    starts_at = models.DateField(null=True, blank=True)
-    ends_at = models.DateField(null=True, blank=True)
+    starts_at = models.DateField(null=False, blank=False)
+    ends_at = models.DateField(null=False, blank=False)
 
     class Meta:
         verbose_name = "Route"
@@ -35,6 +35,8 @@ class RouteCity(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name="route_cities")
     city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="in_routes")
     position = models.PositiveIntegerField()
+    arrival_date = models.DateField(null=False, blank=False)
+    departure_date = models.DateField(null=False, blank=False)
 
     class Meta:
         constraints = [

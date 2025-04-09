@@ -28,7 +28,7 @@ class RouteCitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RouteCity
-        fields = ['id', 'route', 'city', 'position']
+        fields = ['id', 'route', 'city', 'position', 'arrival_date', 'departure_date']
 
 
 class RecommendationSerializer(serializers.ModelSerializer):
