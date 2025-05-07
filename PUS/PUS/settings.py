@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f*gv1dajbk@r%@h27en94^hjv2e&ue-r4$e#a0#4s+q^o3=_7h'
 
 # Api key for OpenWeather Api
-OPENWEATHER_API_KEY = 'api key'
+OPENWEATHER_API_KEY = '2927420dfec40a6d73ba383334e78aa3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -150,4 +150,14 @@ SESSION_COOKIE_SECURE = True  # wymagane przy SameSite=None
 
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True     # również wymagane
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 

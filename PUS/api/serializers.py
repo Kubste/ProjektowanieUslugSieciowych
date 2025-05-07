@@ -7,9 +7,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class CitySerializer(serializers.ModelSerializer):
+    latitude = serializers.FloatField(required=False, allow_null=True)
+    longitude = serializers.FloatField(required=False, allow_null=True)
+    
     class Meta:
         model = City
         fields = ['id', 'city_name', 'latitude', 'longitude']
+
 
     def create(self, validated_data):
         city_name = validated_data['city_name']

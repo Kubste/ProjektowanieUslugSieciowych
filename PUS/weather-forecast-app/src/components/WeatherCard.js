@@ -1,95 +1,69 @@
-import React, { useState } from 'react';
-import { X, Cloud, CloudRain, Sun, CloudLightning } from 'lucide-react';
-import WeatherDetailModal from './WeatherDetailModal';
+import React, { useEffect, useState } from 'react';
+import { Thermometer, Droplet, Wind, Cloud, Calendar as CalendarIcon } from 'lucide-react';
 
-// Helper function to get weather icon based on condition
-const getWeatherIcon = (condition) => {
-  switch (condition.toLowerCase()) {
-    case 'rain':
-    case 'rainy':
-      return <CloudRain size={64} className="text-blue-400" />;
-    case 'cloudy':
-    case 'partly cloudy':
-      return <Cloud size={64} className="text-gray-400" />;
-    case 'storm':
-    case 'thunderstorm':
-      return <CloudLightning size={64} className="text-gray-600" />;
-    case 'sunny':
-    case 'clear':
-    default:
-      return <Sun size={64} className="text-yellow-400" />;
-  }
-};
+const WeatherCard = ({ city, onRemove, api }) => {
+  const [forecast, setForecast] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-function WeatherCard({ city, onRemove }) {
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  
-  // Format date for display
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  useEffect(() => {
+    const fetchForecast = async () => {
+      try {
+        const response = await api.get(`/api/forecast/?cityId=${city.id}&startDate=${city.arrivalDate}&endDate=${city.departureDate}`);
+        setForecast(response.data);
+      } catch (error) {
+        console.error('Error fetching forecast:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Generate date range text
-  const getDateRangeText = () => {
-    const isSameDay = city.arrivalDate === city.departureDate;
-    if (isSameDay) {
-      return formatDate(city.arrivalDate);
-    }
-    return `${formatDate(city.arrivalDate)} - ${formatDate(city.departureDate)}`;
-  };
+    fetchForecast();
+  }, [city, api]);
 
   return (
-    <>
-      <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
-        <div className="p-6">
-          <div className="flex justify-between items-start">
-            <div 
-              className="cursor-pointer hover:text-blue-600"
-              onClick={() => setShowDetailModal(true)}
-            >
-              <h2 className="text-2xl font-bold">{city.name}</h2>
-              <p className="text-gray-600">{getDateRangeText()}</p>
-            </div>
-            <button
-              onClick={onRemove}
-              className="p-1 rounded-full hover:bg-gray-200"
-            >
-              <X size={20} />
-            </button>
-          </div>
-          
-          <div className="mt-6 flex justify-center">
-            {getWeatherIcon(city.condition)}
-          </div>
-          
-          <div className="mt-4 text-center">
-            <p className="text-3xl font-bold">{city.temperature}°</p>
-            <p className="text-gray-600">{city.condition}</p>
-            
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Humidity</p>
-                <p className="font-medium">{city.humidity}%</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Wind</p>
-                <p className="font-medium">{city.windSpeed} km/h</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+      <div className="flex justify-between items-start">
+        <h3 className="text-xl font-semibold">{city.city_name}</h3>
+        <button onClick={onRemove} className="text-red-500 hover:text-red-700">
+          Remove
+        </button>
       </div>
       
-      {/* Detailed Weather Modal */}
-      {showDetailModal && (
-        <WeatherDetailModal 
-          city={city} 
-          onClose={() => setShowDetailModal(false)} 
-        />
+      <div className="flex items-center text-sm text-gray-500 mt-1 mb-3">
+        <CalendarIcon className="mr-1" size={14} />
+        {city.arrivalDate} to {city.departureDate}
+      </div>
+
+      {loading ? (
+        <p>Loading forecast...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {forecast.map((day) => (
+            <div key={day.date} className="border rounded-lg p-3">
+              <div className="font-medium">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+              <div className="text-sm text-gray-500">{day.date}</div>
+              <div className="flex items-center mt-2">
+                <Thermometer className="mr-2" size={16} />
+                <span>{day.temp}°C (feels {day.feels_like}°C)</span>
+              </div>
+              <div className="flex items-center mt-1">
+                <Droplet className="mr-2" size={16} />
+                <span>Humidity: {day.humidity}%</span>
+              </div>
+              <div className="flex items-center mt-1">
+                <Wind className="mr-2" size={16} />
+                <span>Wind: {day.wind_speed} m/s</span>
+              </div>
+              <div className="flex items-center mt-1">
+                <Cloud className="mr-2" size={16} />
+                <span>{day.description}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
-    </>
+    </div>
   );
-}
+};
 
 export default WeatherCard;

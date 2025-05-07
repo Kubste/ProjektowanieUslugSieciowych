@@ -3,9 +3,9 @@ from django.conf import settings
 
 class City(models.Model):
     city_name = models.CharField(max_length=64, unique=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    
     class Meta:
         verbose_name = "City"
         verbose_name_plural = "Cities"
@@ -21,6 +21,25 @@ class Route(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     starts_at = models.DateField(null=False, blank=False)
     ends_at = models.DateField(null=False, blank=False)
+    avg_temp = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Average temperature for the entire route"
+    )
+
+    def update_summary(self):
+        from django.db.models import Avg
+        forecasts = ForecastData.objects.filter(
+            city__in=[rc.city for rc in self.route_cities.all()],
+            date__gte=self.starts_at,
+            date__lte=self.ends_at
+        )
+        
+        if forecasts.exists():
+            self.avg_temp = forecasts.aggregate(avg_temp=Avg('temp'))['avg_temp']
+            self.save()
 
     class Meta:
         verbose_name = "Route"
@@ -29,6 +48,8 @@ class Route(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.user})"
+    
+    
 
 
 class RouteCity(models.Model):
@@ -65,7 +86,18 @@ class ForecastData(models.Model):
     precipitation_probability = models.FloatField()
     description = models.TextField(null=True, blank=True)
     main_weather = models.CharField(max_length=64)
-
+    icon = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Weather icon code from OpenWeatherMap"
+    )
+    
+    def get_icon_url(self):
+        if self.icon:
+            return f"https://openweathermap.org/img/wn/{self.icon}@2x.png"
+        return None
+    
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["city", "date"], name="unique_forecast_per_city")

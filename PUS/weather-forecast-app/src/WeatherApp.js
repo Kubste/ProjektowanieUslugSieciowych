@@ -38,7 +38,7 @@ function WeatherApp({ api, user, onLogout }) {
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const response = await api.get('/city/');
+        const response = await api.get('/api/city/');
         setCitiesList(response.data);
       } catch (err) {
         console.error('Error fetching cities:', err);
@@ -52,7 +52,7 @@ function WeatherApp({ api, user, onLogout }) {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await api.get('/route/');
+        const response = await api.get('/api/route/');
         setSavedRoutes(response.data);
       } catch (err) {
         setError(err.message);
@@ -98,7 +98,7 @@ function WeatherApp({ api, user, onLogout }) {
     
     try {
       // Najpierw tworzymy trasę
-      const routeResponse = await api.post('/route/', {
+      const routeResponse = await api.post('/api/route/', {
         name: routeName.trim(),
         starts_at: selectedCities[0].arrivalDate,
         ends_at: selectedCities[selectedCities.length - 1].departureDate
@@ -117,10 +117,10 @@ function WeatherApp({ api, user, onLogout }) {
       }));
       
       // Aktualizujemy prognozę pogody
-      await api.post(`/route/${routeId}/update_forecast/`);
+      await api.post(`/api/route/${routeId}/update_forecast/`);
       
       // Odświeżamy listę tras
-      const routesResponse = await api.get('/route/');
+      const routesResponse = await api.get('/api/route/');
       setSavedRoutes(routesResponse.data);
       
       setSavingRoute(false);
@@ -134,15 +134,25 @@ function WeatherApp({ api, user, onLogout }) {
   // Załaduj trasę
   const loadRoute = async (routeId) => {
     try {
-      const response = await api.get(`/route/${routeId}/`);
-      const routeCitiesResponse = await api.get(`/route_city/?route=${routeId}`);
+      const response = await api.get(`/api/route/${routeId}/`);
+      const routeCitiesResponse = await api.get(`/api/route_city/?route=${routeId}`);
       
-      const citiesWithDates = routeCitiesResponse.data.map(rc => ({
-        id: rc.city.id,
-        city_name: rc.city.city_name,
-        arrivalDate: rc.arrival_date,
-        departureDate: rc.departure_date
-      }));
+      const citiesWithDates = await Promise.all(
+        routeCitiesResponse.data.map(async (rc) => {
+          // Pobierz prognozę dla każdego miasta
+          const forecastResponse = await api.get(
+            `/api/forecast/?cityId=${rc.city.id}&startDate=${rc.arrival_date}&endDate=${rc.departure_date}`
+          );
+          
+          return {
+            id: rc.city.id,
+            city_name: rc.city.city_name,
+            arrivalDate: rc.arrival_date,
+            departureDate: rc.departure_date,
+            forecast: forecastResponse.data
+          };
+        })
+      );
       
       setSelectedCities(citiesWithDates);
       setSidebarOpen(false);
@@ -157,7 +167,7 @@ function WeatherApp({ api, user, onLogout }) {
     if (!routeToDelete) return;
     
     try {
-      await api.delete(`/route/${routeToDelete}/`);
+      await api.delete(`/api/route/${routeToDelete}/`);
       const updatedRoutes = savedRoutes.filter(route => route.id !== routeToDelete);
       setSavedRoutes(updatedRoutes);
       
@@ -176,9 +186,9 @@ function WeatherApp({ api, user, onLogout }) {
   // Aktualizuj prognozę dla trasy
   const updateRouteForecast = async (routeId) => {
     try {
-      await api.post(`/route/${routeId}/update_forecast/`);
+      await api.post(`/api/route/${routeId}/update_forecast/`);
       // Odśwież dane trasy
-      const routesResponse = await api.get('/route/');
+      const routesResponse = await api.get('/api/route/');
       setSavedRoutes(routesResponse.data);
       
       // Jeśli aktualna trasa jest otwarta, odśwież ją
@@ -308,8 +318,9 @@ const cancelDelete = () => {
             <div className="bg-gray-100 rounded-lg">
               <SearchPanel 
                 cities={citiesList}
-                onAddCity={addCity} 
+                onAddCity={addCity}
                 lastDepartureDate={selectedCities.length > 0 ? selectedCities[selectedCities.length - 1].departureDate : null}
+                api={api}  // Dodaj tę linię
               />
             </div>
           </div>

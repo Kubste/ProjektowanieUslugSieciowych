@@ -10,7 +10,8 @@ router.register(r'route', RouteViewSet)
 router.register(r'route_city', RouteCityViewSet)
 router.register(r'forecast_data', ForecastDataViewSet)
 router.register(r'recommendation', RecommendationViewSet)
-router.register(r'city', CityViewSet)
+router.register(r'city', CityViewSet, basename='city')
+router.register(r'forecast', ForecastDataViewSet, basename='forecast')
 
 urlpatterns = [
 path('', include(router.urls)),
