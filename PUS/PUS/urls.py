@@ -20,6 +20,6 @@ import auth_manager
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('auth_manager.urls', namespace='auth_manager')),
+    path('auth_manager/', include('auth_manager.urls', namespace='auth_manager')),  # Zmiana tutaj
     path('api/', include('api.urls', namespace='api')),
 ]
